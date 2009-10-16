@@ -19,6 +19,8 @@ package java.math;
 
 import java.io.Serializable;
 
+import com.google.gwt.core.client.JavaScriptObject;
+
 /**
  * This class represents immutable arbitrary precision decimal numbers. Each
  * {@code BigDecimal} instance is represented with a unscaled arbitrary
@@ -293,92 +295,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      *             decimal.
      */
     public BigDecimal(char[] in, int offset, int len) {
-        int begin = offset; // first index to be copied
-        int last = offset + (len - 1); // last index to be copied
-        String scaleString = null; // buffer for scale
-        StringBuilder unscaledBuffer; // buffer for unscaled value
-
-        if (in == null) {
-            throw new NullPointerException();
-        }
-        if ((last >= in.length) || (offset < 0) || (len <= 0) || (last < 0)) {
-            throw new NumberFormatException();
-        }
-        unscaledBuffer = new StringBuilder(len);
-        int bufLength = 0;
-        // To skip a possible '+' symbol
-        if ((offset <= last) && (in[offset] == '+')) {
-            offset++;
-            begin++;
-        }
-        int counter = 0;
-        boolean wasNonZero = false;
-        // Accumulating all digits until a possible decimal point
-        for (; (offset <= last) && (in[offset] != '.')
-        && (in[offset] != 'e') && (in[offset] != 'E'); offset++) {
-            if (!wasNonZero) {
-                if (in[offset] == '0') {
-                    counter++;
-                } else {
-                    wasNonZero = true;
-                }
-            }
-
-        }
-        unscaledBuffer.append(in, begin, offset - begin);
-        bufLength += offset - begin;
-        // A decimal point was found
-        if ((offset <= last) && (in[offset] == '.')) {
-            offset++;
-            // Accumulating all digits until a possible exponent
-            begin = offset;
-            for (; (offset <= last) && (in[offset] != 'e')
-            && (in[offset] != 'E'); offset++) {
-                if (!wasNonZero) {
-                    if (in[offset] == '0') {
-                        counter++;
-                    } else {
-                        wasNonZero = true;
-                    }
-                }
-            }
-            scale = offset - begin;
-            bufLength += scale;
-            unscaledBuffer.append(in, begin, (int)scale);
-        } else {
-            scale = 0;
-        }
-        // An exponent was found
-        if ((offset <= last) && ((in[offset] == 'e') || (in[offset] == 'E'))) {
-            offset++;
-            // Checking for a possible sign of scale
-            begin = offset;
-            if ((offset <= last) && (in[offset] == '+')) {
-                offset++;
-                if ((offset <= last) && (in[offset] != '-')) {
-                    begin++;
-                }
-            }
-            // Accumulating all remaining digits
-            scaleString = String.valueOf(in, begin, last + 1 - begin);
-            // Checking if the scale is defined            
-            scale = scale - Integer.parseInt(scaleString);
-            if (scale != (int)scale) {
-                // math.02=Scale out of range.
-                throw new NumberFormatException("Scale out of range"); //$NON-NLS-1$
-            }
-        }
-        // Parsing the unscaled value
-        if (bufLength < 16) {
-            smallValue = Long.parseLong(unscaledBuffer.toString());
-            bitLength = bitLength(smallValue);
-        } else {
-            setUnscaledValue(new BigInteger(unscaledBuffer.toString()));
-        }        
-        precision = unscaledBuffer.length() - counter;
-        if (unscaledBuffer.charAt(0) == '-') {
-            precision --;
-        }    
+        this(new String(in, offset, len));
     }
 
     /**
@@ -466,10 +383,115 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      *             of a big decimal.
      */
     public BigDecimal(String val) {
-        this(val.toCharArray(), 0, val.length());
-    }
+    	int begin = 0; // first index to be copied
+    	int offset = 0;
+        int last = val.length() - 1; // last index to be copied
+        String scaleString = null; // buffer for scale
+        StringBuilder unscaledBuffer; // buffer for unscaled value
 
-    /**
+        if (val == null) {
+            throw new NullPointerException();
+        }
+        unscaledBuffer = new StringBuilder(val.length());
+        int bufLength = 0;
+        // To skip a possible '+' symbol
+        if ((offset <= last) && (val.charAt(offset) == '+')) {
+            offset++;
+            begin++;
+        }
+        int counter = 0;
+        boolean wasNonZero = false;
+        // Accumulating all digits until a possible decimal point
+        for (; (offset <= last) && (val.charAt(offset) != '.')
+        && (val.charAt(offset) != 'e') && (val.charAt(offset) != 'E'); offset++) {
+            if (!wasNonZero) {
+                if (val.charAt(offset) == '0') {
+                    counter++;
+                } else {
+                    wasNonZero = true;
+                }
+            }
+
+        }
+        unscaledBuffer.append(val, begin, offset - begin);
+        bufLength += offset - begin;
+        // A decimal point was found
+        if ((offset <= last) && (val.charAt(offset) == '.')) {
+            offset++;
+            // Accumulating all digits until a possible exponent
+            begin = offset;
+            for (; (offset <= last) && (val.charAt(offset) != 'e')
+            && (val.charAt(offset) != 'E'); offset++) {
+                if (!wasNonZero) {
+                    if (val.charAt(offset) == '0') {
+                        counter++;
+                    } else {
+                        wasNonZero = true;
+                    }
+                }
+            }
+            scale = offset - begin;
+            bufLength += scale;
+            unscaledBuffer.append(val, begin, (int)scale);
+        } else {
+            scale = 0;
+        }
+        // An exponent was found
+        if ((offset <= last) && ((val.charAt(offset) == 'e') || (val.charAt(offset) == 'E'))) {
+            offset++;
+            // Checking for a possible sign of scale
+            begin = offset;
+            if ((offset <= last) && (val.charAt(offset) == '+')) {
+                offset++;
+                if ((offset <= last) && (val.charAt(offset) != '-')) {
+                    begin++;
+                }
+            }
+            // Accumulating all remaining digits
+            scaleString = val.substring(begin, last + 1 - begin);
+            // Checking if the scale is defined            
+            scale = scale - Integer.parseInt(scaleString);
+            if (scale != (int)scale) {
+                // math.02=Scale out of range.
+                throw new NumberFormatException("Scale out of range"); //$NON-NLS-1$
+            }
+        }
+        // Parsing the unscaled value
+        String unscaled = unscaledBuffer.toString();
+		if (bufLength < 16) {
+            smallValue = parseUnscaled(unscaled);
+            if (__isNaN(smallValue)) {
+                throw new NumberFormatException("For input string: \"" + unscaled + "\"");
+         	}
+            bitLength = bitLength(smallValue);
+        } else {
+            setUnscaledValue(new BigInteger(unscaled));
+        }        
+        precision = unscaledBuffer.length() - counter;
+        if (unscaledBuffer.charAt(0) == '-') {
+            precision --;
+        }    
+    }
+    
+    protected static JavaScriptObject unscaledRegex;
+    
+    private static native double parseUnscaled(String str) /*-{
+	    var unscaledRegex = @java.math.BigDecimal::unscaledRegex;
+	    if (!unscaledRegex) {
+	      unscaledRegex = @java.math.BigDecimal::unscaledRegex = /^[+-]?\d*$/i;
+	    }
+	    if (unscaledRegex.test(str)) {
+	      return parseInt(str);
+	    } else {
+	      return Number.NaN;
+	    }
+	}-*/;
+    
+    private static native boolean __isNaN(double x) /*-{
+    	return isNaN(x);
+  	}-*/;
+    
+	/**
      * Constructs a new {@code BigDecimal} instance from a string
      * representation. The result is rounded according to the specified math
      * context.
@@ -800,7 +822,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      * @throws NullPointerException
      *             if {@code augend == null}.
      */
-    public BigDecimal add(BigDecimal augend) {
+	public BigDecimal add(BigDecimal augend) {
         double diffScale = this.scale - augend.scale;
         // Fast return when some operand is zero
         if (this.isZero()) {
@@ -851,7 +873,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      * @throws NullPointerException
      *             if {@code augend == null} or {@code mc == null}.
      */
-    public BigDecimal add(BigDecimal augend, MathContext mc) {
+	public BigDecimal add(BigDecimal augend, MathContext mc) {
         BigDecimal larger; // operand with the largest unscaled value
         BigDecimal smaller; // operand with the smallest unscaled value
         BigInteger tempBI;
@@ -998,7 +1020,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      * @throws NullPointerException
      *             if {@code multiplicand == null}.
      */
-    public BigDecimal multiply(BigDecimal multiplicand) {
+	public BigDecimal multiply(BigDecimal multiplicand) {
     	double newScale = this.scale + multiplicand.scale;
 
         if ((this.isZero()) || (multiplicand.isZero())) {
@@ -1084,7 +1106,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      *             rounding is necessary according to the given scale and given
      *             precision.
      */
-    public BigDecimal divide(BigDecimal divisor, int scale, RoundingMode roundingMode) {
+	public BigDecimal divide(BigDecimal divisor, int scale, RoundingMode roundingMode) {
         // Let be: this = [u1,s1]  and  divisor = [u2,s2]
         if (roundingMode == null) {
             throw new NullPointerException();
