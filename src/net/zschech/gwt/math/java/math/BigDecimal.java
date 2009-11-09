@@ -393,7 +393,6 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             throw new NullPointerException();
         }
         unscaledBuffer = new StringBuilder(val.length());
-        int bufLength = 0;
         // To skip a possible '+' symbol
         if ((offset <= last) && (val.charAt(offset) == '+')) {
             offset++;
@@ -413,8 +412,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             }
 
         }
-        unscaledBuffer.append(val, begin, offset - begin);
-        bufLength += offset - begin;
+        unscaledBuffer.append(val, begin, offset);
         // A decimal point was found
         if ((offset <= last) && (val.charAt(offset) == '.')) {
             offset++;
@@ -431,8 +429,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
                 }
             }
             scale = offset - begin;
-            bufLength += scale;
-            unscaledBuffer.append(val, begin, (int)scale);
+            unscaledBuffer.append(val, begin, offset);
         } else {
             scale = 0;
         }
@@ -448,7 +445,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
                 }
             }
             // Accumulating all remaining digits
-            scaleString = val.substring(begin, last + 1 - begin);
+            scaleString = val.substring(begin, last + 1);
             // Checking if the scale is defined            
             scale = scale - Integer.parseInt(scaleString);
             if (scale != (int)scale) {
@@ -458,15 +455,15 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         }
         // Parsing the unscaled value
         String unscaled = unscaledBuffer.toString();
-		if (bufLength < 16) {
+		if (unscaled.length() < 16) {
             smallValue = parseUnscaled(unscaled);
             if (__isNaN(smallValue)) {
-                throw new NumberFormatException("For input string: \"" + unscaled + "\"");
+                throw new NumberFormatException("For input string: \"" + val + "\"");
          	}
             bitLength = bitLength(smallValue);
         } else {
             setUnscaledValue(new BigInteger(unscaled));
-        }        
+        }
         precision = unscaledBuffer.length() - counter;
         if (unscaledBuffer.charAt(0) == '-') {
             precision --;
