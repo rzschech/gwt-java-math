@@ -457,7 +457,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         String unscaled = unscaledBuffer.toString();
 		if (unscaled.length() < 16) {
             smallValue = parseUnscaled(unscaled);
-            if (__isNaN(smallValue)) {
+            if (Double.isNaN(smallValue)) {
                 throw new NumberFormatException("For input string: \"" + val + "\"");
          	}
             bitLength = bitLength(smallValue);
@@ -483,10 +483,6 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
 	      return Number.NaN;
 	    }
 	}-*/;
-    
-    private static native boolean __isNaN(double x) /*-{
-    	return isNaN(x);
-  	}-*/;
     
 	/**
      * Constructs a new {@code BigDecimal} instance from a string
@@ -1854,7 +1850,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
     }
     
     private boolean isZero() {
-        return bitLength == 0;
+        return bitLength == 0 && this.smallValue != -1;
     }
 
     /**
