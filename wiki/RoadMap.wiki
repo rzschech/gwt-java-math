@@ -1,4 +1,4 @@
 #summary A bullet point road map for gwt-java-math
   * {{{BigDecimal}}} and {{{BigInteger}}} number formatters.
-  * Remove last remaining use if {{{long}}} in divide code.
+  * Remove last remaining use of {{{long}}} in divide code.
   * Support for {{{BigDecimal(double)}}} constructor which requires {{{Double.doubleToLongBits(double value)}}}
