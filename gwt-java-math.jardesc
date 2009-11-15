@@ -1,0 +1,19 @@
+<jardesc>
+    <jar path="gwt-java-math/gwt-java-math-1.0.1.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/gwt-java-math/gwt-java-math.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
+        <javaElement handleIdentifier="=gwt-java-math/src&lt;com.google.gwt.user.client.rpc.core.java.math"/>
+        <javaElement handleIdentifier="=gwt-java-math/src&lt;net.zschech.gwt.math"/>
+        <javaElement handleIdentifier="=gwt-java-math/src&lt;net.zschech.gwt.math.java.math"/>
+        <javaElement handleIdentifier="=gwt-java-math/src&lt;net.zschech.gwt.math.java.util"/>
+    </selectedElements>
+    <fatjar builder="org.eclipse.jdt.ui.plain_jar_builder" launchConfig=""/>
+</jardesc>
