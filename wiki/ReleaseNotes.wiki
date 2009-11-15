@@ -2,6 +2,10 @@
 
 = Release Notes =
 
+== 1.0.1 ==
+
+Released the {{{BigInteger}}}, {{{BigDecimal}}} and {{{MathContext}}} custom field serializers.
+
 == 1.0.0 ==
 
 Initial release.
