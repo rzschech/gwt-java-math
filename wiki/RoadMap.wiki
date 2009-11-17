@@ -3,3 +3,4 @@
   * Remove last remaining use of {{{long}}} in divide code.
   * Support for {{{BigDecimal(double)}}} constructor which requires {{{Double.doubleToLongBits(double value)}}}
   * Support for serializing and deserializing {{{java.util.Random}}} objects.
+  * Reduce compiled JavaScript size.
