@@ -1,6 +1,8 @@
 #summary Release notes
 
-= Release Notes =
+== 1.0.2 ==
+
+A Java 1.5 compatible release [http://groups.google.com/group/gwt-java-math/browse_thread/thread/841ec373d8725d46 as requested].
 
 == 1.0.1 ==
 
