@@ -888,7 +888,7 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
      */
     @Override
     public float floatValue() {
-        return (float) doubleValue();
+        return Float.parseFloat(this.toString());
     }
 
     /**
