@@ -2645,9 +2645,6 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      * @return this {@code BigDecimal} as a double value.
      */
     public double doubleValue(){
-    	if (bitLength < 54) {
-    	    return smallValue;
-    	}
     	return Double.parseDouble(this.toString());
     }
 //    @Override
