@@ -478,7 +478,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
 	      unscaledRegex = @java.math.BigDecimal::unscaledRegex = /^[+-]?\d*$/i;
 	    }
 	    if (unscaledRegex.test(str)) {
-	      return parseInt(str);
+	      return parseInt(str, 10);
 	    } else {
 	      return Number.NaN;
 	    }
