@@ -1,5 +1,10 @@
 #summary A bullet point road map for gwt-java-math
-  * {{{BigDecimal}}} and {{{BigInteger}}} number formatters.
+
+*This library is in the process of getting merged into GWT itself! Currently it is on GWT trunk.*
+
+For those who still want java.math for GWT 1.5 - 1.7 it will continue to be support.
+
+  * {{{BigDecimal}}} and {{{BigInteger}}} number formatters. (included in GWT itself)
   * Remove last remaining use of {{{long}}} in divide code.
   * Support for {{{BigDecimal(double)}}} constructor which requires {{{Double.doubleToLongBits(double value)}}}
   * Support for serializing and deserializing {{{java.util.Random}}} objects.
