@@ -2,7 +2,7 @@
 
 *This library is in the process of getting merged into GWT itself! Currently it is on GWT trunk.*
 
-For those who still want java.math for GWT 1.5 - 1.7 it will continue to be support.
+For those who still want java.math for GWT 1.5 - 1.7 it will continue to be supported.
 
   * {{{BigDecimal}}} and {{{BigInteger}}} number formatters. (included in GWT itself)
   * Remove last remaining use of {{{long}}} in divide code.
