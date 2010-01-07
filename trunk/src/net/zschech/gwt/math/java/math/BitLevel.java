@@ -49,7 +49,8 @@ class BitLevel {
             int i = val.getFirstNonzeroDigit();
             // We reduce the problem to the positive case.
             if (i == val.numberLength - 1) {
-                highDigit--;
+            	// ~~ is to handle int overflow
+            	highDigit = ~~(highDigit - 1);
             }
         }
         // Subtracting all sign bits
