@@ -1,8 +1,12 @@
 #summary Release notes
 
+== 1.0.6 ==
+
+Fixed issue 4 and issue 5
+
 == 1.0.5 ==
 
-Fixed JavaScript implementation of integer overflow r28
+Fixed Java Script implementation of integer overflow r28
 
 == 1.0.4 ==
 
