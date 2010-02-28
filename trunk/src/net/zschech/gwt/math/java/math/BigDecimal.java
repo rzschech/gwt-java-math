@@ -465,8 +465,14 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             setUnscaledValue(new BigInteger(unscaled));
         }
         precision = unscaledBuffer.length() - counter;
-        if (unscaledBuffer.charAt(0) == '-') {
+        counter = 0;
+        while (counter < unscaledBuffer.length()) {
+			char charAt = unscaledBuffer.charAt(counter);
+			if (charAt != '-' && charAt != '0') {
+				break;
+			}
             precision --;
+        	counter ++;
         }    
     }
     
@@ -1879,17 +1885,14 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             return precision;
         }
         int bitLength = this.bitLength;
-        int decimalDigits = 1; // the precision to be calculated
+        double decimalDigits = 1; // the precision to be calculated
         double doubleUnsc = 1;  // intVal in 'double'
 
-        if (bitLength < 1024) {
-            // To calculate the precision for small numbers
-            if (bitLength >= 54) {
-                doubleUnsc = getUnscaledValue().doubleValue();
-            } else if (bitLength >= 1) {
+        if (bitLength < 64) {
+            if (bitLength >= 1) {
                 doubleUnsc = smallValue;
             }
-            decimalDigits += (int)Math.log10(Math.abs(doubleUnsc));
+            decimalDigits += Math.log10(Math.abs(doubleUnsc));
         } else {// (bitLength >= 1024)
             /* To calculate the precision for large numbers
              * Note that: 2 ^(bitlength() - 1) <= intVal < 10 ^(precision()) */
@@ -1899,7 +1902,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
                 decimalDigits++;
             }
         }
-        precision = decimalDigits;
+        precision = (int)decimalDigits;
         return precision;
     }
 
@@ -2780,7 +2783,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      */
     private void inplaceRound(MathContext mc) {
         int mcPrecision = mc.getPrecision();
-        if (aproxPrecision() - mcPrecision <= 0 || mcPrecision == 0) {
+        if (aproxPrecision() - mcPrecision < 0 || mcPrecision == 0) {
             return;
         }
         int discardedPrecision = precision() - mcPrecision;
