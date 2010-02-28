@@ -153,7 +153,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         100000000000D,
         1000000000000D,
         10000000000000D,
-        100000000000000D, };
+        100000000000000D,
+        1000000000000000D,
+        10000000000000000D };
     
     
     private static final double[] DOUBLE_FIVE_POW = new double[]
