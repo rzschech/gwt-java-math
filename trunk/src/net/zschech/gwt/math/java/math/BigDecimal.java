@@ -1890,7 +1890,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         double decimalDigits = 1; // the precision to be calculated
         double doubleUnsc = 1;  // intVal in 'double'
 
-        if (bitLength < 64) {
+        if (bitLength < 54) {
             if (bitLength >= 1) {
                 doubleUnsc = smallValue;
             }
