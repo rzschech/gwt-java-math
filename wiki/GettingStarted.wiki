@@ -1,4 +1,5 @@
 #summary Getting started
+#labels Featured
 = Getting Started =
 
 This getting started guide gives an overview setting up gwt-java-math. If you have any questions, thoughts, or ideas send them to the [http://groups.google.com/group/gwt-java-math discussion group].
