@@ -1,4 +1,5 @@
 #summary A bullet point road map for gwt-java-math
+#labels Featured
 
 *This library is in the process of getting merged into GWT itself! Currently it is on GWT trunk.*
 
