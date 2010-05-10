@@ -115,6 +115,12 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
 
     /** The double closer to <code>Log10(2)</code>. */
     private static final double LOG10_2 = 0.3010299956639812;
+    
+    /** The double closer to <code>Math.log(2.0d)</code>. */
+    private static final double LOG2 = 0.6931471805599453d;
+
+    /** The double closer to <code>Math.pow(2, 47)</code>. */
+    private static final double POW47 = 140737488355328d;
 
     /** The <code>String</code> representation is cached. */
     private transient String toStringImage;
@@ -297,9 +303,18 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      *             decimal.
      */
     public BigDecimal(char[] in, int offset, int len) {
-        this(new String(in, offset, len));
+		this(toString(in, offset, len));
     }
 
+    private static String toString(char[] in, int offset, int len) {
+		try {
+			return new String(in, offset, len);
+		}
+		catch (StringIndexOutOfBoundsException e) {
+			throw new NumberFormatException(e.getMessage());
+		}
+	}
+    
     /**
      * Constructs a new {@code BigDecimal} instance from a string representation
      * given as a character array.
@@ -452,7 +467,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
             scale = scale - Integer.parseInt(scaleString);
             if (scale != (int)scale) {
                 // math.02=Scale out of range.
-                throw new NumberFormatException("Scale out of range"); //$NON-NLS-1$
+                throw new NumberFormatException("Scale out of range."); //$NON-NLS-1$
             }
         }
         // Parsing the unscaled value
@@ -1120,29 +1135,29 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         double diffScale = this.scale - divisor.scale - scale;
         if(this.bitLength < 54 && divisor.bitLength < 54 ) {
             if(diffScale == 0) {
-                return dividePrimitiveLongs((long)this.smallValue,
-                		(long)divisor.smallValue,
+                return dividePrimitiveDoubles(this.smallValue,
+                		divisor.smallValue,
                         scale,
                         roundingMode );
             } else if(diffScale > 0) {
                 if(diffScale < DOUBLE_TEN_POW.length &&
                         divisor.bitLength + DOUBLE_TEN_POW_BIT_LENGTH[(int)diffScale] < 54) {
-                    return dividePrimitiveLongs((long)this.smallValue,
-                    		(long)(divisor.smallValue*DOUBLE_TEN_POW[(int)diffScale]),
+                    return dividePrimitiveDoubles(this.smallValue,
+                    		(divisor.smallValue*DOUBLE_TEN_POW[(int)diffScale]),
                             scale,
                             roundingMode);
                 }
             } else { // diffScale < 0
                 if(-diffScale < DOUBLE_TEN_POW.length &&
                         this.bitLength + DOUBLE_TEN_POW_BIT_LENGTH[(int)-diffScale] < 54) {
-                    return dividePrimitiveLongs((long)(this.smallValue*DOUBLE_TEN_POW[(int)-diffScale]),
-                    		(long)divisor.smallValue,
+                    return dividePrimitiveDoubles((this.smallValue*DOUBLE_TEN_POW[(int)-diffScale]),
+                    		divisor.smallValue,
                             scale,
                             roundingMode);
                 }
-                
             }
         }
+        
         BigInteger scaledDividend = this.getUnscaledValue();
         BigInteger scaledDivisor = divisor.getUnscaledValue(); // for scaling of 'u2'
         
@@ -1170,7 +1185,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         if(scaledDivisor.bitLength() < 54) {
             long rem = remainder.longValue();
             long divisor = scaledDivisor.longValue();
-            compRem = longCompareTo(Math.abs(rem) << 1,Math.abs(divisor));
+            compRem = doubleCompareTo(Math.abs(rem) << 1,Math.abs(divisor));
             // To look if there is a carry
             compRem = roundingBehavior(quotient.testBit(0) ? 1 : 0,
                     sign * (5 + compRem), roundingMode);
@@ -1192,15 +1207,13 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         return new BigDecimal(quotient, scale);
     }
     
-    // TODO convert to double math dont use longs
-    private static BigDecimal dividePrimitiveLongs(long scaledDividend, long scaledDivisor, int scale, RoundingMode roundingMode) {
-        long quotient = scaledDividend / scaledDivisor;
-        long remainder = scaledDividend % scaledDivisor;
-        int sign = Long.signum( scaledDividend ) * Long.signum( scaledDivisor );
+    private static BigDecimal dividePrimitiveDoubles(double scaledDividend, double scaledDivisor, int scale, RoundingMode roundingMode) {
+    	double quotient = intDivide(scaledDividend, scaledDivisor);
+    	double remainder = scaledDividend % scaledDivisor;
+        int sign = signum(scaledDividend * scaledDivisor);
         if (remainder != 0) {
             // Checking if:  remainder * 2 >= scaledDivisor
-            int compRem;                                      // 'compare to remainder'
-            compRem = longCompareTo(Math.abs(remainder) << 1,Math.abs(scaledDivisor));
+            int compRem = doubleCompareTo(Math.abs(remainder) * 2,Math.abs(scaledDivisor));
             // To look if there is a carry
             quotient += roundingBehavior(((int)quotient) & 1,
                     sign * (5 + compRem),
@@ -1986,7 +1999,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         // diffScale < 0
         // return  [u,s] / [1,newScale]  with the appropriate scale and rounding
         if(this.bitLength < 54 && -diffScale < DOUBLE_TEN_POW.length) {
-            return dividePrimitiveLongs((long)this.smallValue, (long)DOUBLE_TEN_POW[(int)-diffScale], newScale,roundingMode);
+            return dividePrimitiveDoubles(this.smallValue, DOUBLE_TEN_POW[(int)-diffScale], newScale,roundingMode);
         }
         return divideBigIntegers(this.getUnscaledValue(),Multiplication.powerOf10(-diffScale),newScale,roundingMode);
     }
@@ -2828,7 +2841,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         setUnscaledValue(integerAndFraction[0]);
     }
 
-    private static int longCompareTo(long value1, long value2) {
+    private static int doubleCompareTo(double value1, double value2) {
         return value1 > value2 ? 1 : (value1 < value2 ? -1 : 0);
     }
     /**
@@ -2842,20 +2855,20 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
      * @see #round(MathContext)
      */
     private void smallRound(MathContext mc, int discardedPrecision) {
-        long sizeOfFraction = (long)DOUBLE_TEN_POW[discardedPrecision];
-        long newScale = (long)scale - discardedPrecision;
-        long unscaledVal = (long) smallValue; // TODO convert to double math dont use longs
+        double sizeOfFraction = DOUBLE_TEN_POW[discardedPrecision];
+        double newScale = scale - discardedPrecision;
+        double unscaledVal = smallValue;
         // Getting the integer part and the discarded fraction
-        long integer = unscaledVal / sizeOfFraction;
-        long fraction = unscaledVal % sizeOfFraction;
+        double integer = intDivide(unscaledVal, sizeOfFraction);
+        double fraction = unscaledVal % sizeOfFraction;
         int compRem;
         // If the discarded fraction is non-zero perform rounding
         if (fraction != 0) {
             // To check if the discarded fraction >= 0.5
-            compRem = longCompareTo(Math.abs(fraction) << 1,sizeOfFraction);
+            compRem = doubleCompareTo(Math.abs(fraction) * 2, sizeOfFraction);
             // To look if there is a carry
             integer += roundingBehavior( ((int)integer) & 1,
-                    Long.signum(fraction) * (5 + compRem),
+                    signum(fraction) * (5 + compRem),
                     mc.getRoundingMode());
             // If after to add the increment the precision changed, we normalize the size
             if (Math.log10(Math.abs(integer)) >= mc.getPrecision()) {
@@ -2871,7 +2884,16 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
         intVal = null;
     }
 
-    /**
+    private static int signum(double a) {
+    	return a == 0 ? 0 : a < 0 ? -1 : 1;
+    }
+    
+    private static double intDivide(double a, double b) {
+    	double r = a / b;
+    	return r > 0 ? Math.floor(r) : Math.ceil(r);
+	}
+
+	/**
      * Return an increment that can be -1,0 or 1, depending of
      * {@code roundingMode}.
      *
@@ -3012,8 +3034,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
     }
 
     private BigInteger getUnscaledValue() {
-        if(intVal == null) {
-            intVal = BigInteger.valueOf((long) smallValue);
+        if (intVal == null) {
+            intVal = BigInteger.valueOf(smallValue);
         }
         return intVal;
     }
@@ -3038,11 +3060,25 @@ public class BigDecimal extends Number implements Comparable<BigDecimal>, Serial
     }
 
     private static int bitLength(double sv) {
-    	long smallValue = (long)sv;
-        if (smallValue < 0) {
-            smallValue = ~smallValue;
-        }
-        return 64 - Long.numberOfLeadingZeros(smallValue);
-    }
+		if (sv > -POW47 && sv < POW47) {
+			boolean negative = sv <= 0;
+			if (negative) {
+				sv = -sv;
+			}
+			int result = (int) Math.floor(Math.log(sv) / LOG2);
+			if (negative && sv == Math.pow(2, result)) {
+				return result;
+			}
+			else {
+				return result + 1;
+			}
+		}
+		else {
+			long smallValue = (long) sv;
+			if (smallValue < 0) {
+				smallValue = ~smallValue;
+			}
+			return 64 - Long.numberOfLeadingZeros(smallValue);
+		}
+	}
 }
-
