@@ -104,6 +104,8 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
         }
     }
 
+    static final double POW32 = 4294967296d;
+    
     private transient int firstNonzeroDigit = -2;
 
     /** Cache for the hash code. */
@@ -342,6 +344,23 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
             digits = new int[] { (int) val, (int) (val >> 32) };
         }
     }
+    
+    BigInteger(int sign, double val) {
+        // PRE: (val >= 0) && (sign >= -1) && (sign <= 1)
+        this.sign = sign;
+        if (val <= Integer.MAX_VALUE * 2.0) {
+            // It fits in one 'int'
+            numberLength = 1;
+            digits = new int[] { twosComplement(val) };
+        } else {
+            numberLength = 2;
+            digits = new int[] { twosComplement(val % POW32), twosComplement(val / POW32) };
+        }
+    }
+    
+	native int twosComplement(double val) /*-{
+		return ~~val;
+	}-*/;
 
     /**
      * Creates a new {@code BigInteger} with the given sign and magnitude. This
@@ -379,6 +398,20 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
         }
     }
 
+    // valueOf for 54 bit double based integer 
+    static BigInteger valueOf(double val) {
+        if (val < 0) {
+            if (val != -1) {
+                return new BigInteger(-1, -val);
+            }
+            return MINUS_ONE;
+        } else if (val <= 10) {
+            return SMALL_VALUES[(int) val];
+        } else {// (val > 10)
+            return new BigInteger(1, val);
+        }
+    }
+    
     /**
      * Returns the two's complement representation of this BigInteger in a byte
      * array.
