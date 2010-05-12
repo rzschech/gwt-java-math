@@ -1,6 +1,10 @@
 #summary Release notes
 #labels Featured
 
+== 1.0.9 ==
+
+Fixed bug in double to BigInteger conversion r39
+
 == 1.0.8 ==
 
 Large performance improvements in the areas of BigDecimal division, scaling, conversion to unscaled BigIntegers, and toString
