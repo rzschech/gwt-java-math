@@ -348,7 +348,7 @@ public class BigInteger extends Number implements Comparable<BigInteger>,
     BigInteger(int sign, double val) {
         // PRE: (val >= 0) && (sign >= -1) && (sign <= 1)
         this.sign = sign;
-        if (val <= Integer.MAX_VALUE * 2.0) {
+        if (val < POW32) {
             // It fits in one 'int'
             numberLength = 1;
             digits = new int[] { twosComplement(val) };
